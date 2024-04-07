@@ -95,14 +95,6 @@ window.addEventListener("DOMContentLoaded", () => {
     circle.classList.add("circle-hidden");
   });
 
-  // circle.addEventListener("mouseover", () => {
-  //   circle.classList.add("circle-hover");
-  // });
-
-  // circle.addEventListener("mouseleave", () => {
-  //   circle.classList.remove("circle-hover");
-  // });
-
   close.addEventListener("click", () => {
     circle.classList.remove("circle-hidden");
     circle.classList.add("circle");
@@ -115,15 +107,40 @@ window.addEventListener("DOMContentLoaded", () => {
   const btnLike = document.querySelector(".btn-liker");
   const likerContainer = document.querySelector(".liker");
 
-  const trajectorys = {
-    1: ["center", "left", "center", "right", "center"],
-    2: ["center", "center", "right", "left", "center"],
-    3: ["center", "center", "left", "right", "center"],
-    4: ["center", "right", "center", "left", "center"],
+  const createAnimationStyle = (trajectoryIndex) => {
+    const name = `heart-animation-${Math.random().toString(36).substr(2, 9)}`;
+    const style = document.createElement("style");
+    document.head.appendChild(style);
+    style.classList.add("animation");
+
+    // Определяем направления отклонения для каждой траектории
+    const deviations = {
+      1: [0, -50, 0, 50, 0], // center, left, center, right, center
+      2: [0, 0, 50, -50, 0], // center, center, right, left, center
+      3: [0, 0, -50, 50, 0], // center, center, left, right, center
+      4: [0, 50, 0, -50, 0], // center, right, center, left, center
+    };
+
+    const deviation = deviations[trajectoryIndex];
+
+    // Создаем ключевые кадры на основе выбранной траектории
+    const keyFrames = `
+      @keyframes ${name} {
+        0% { top: 20px; left: ${50 + deviation[0]}px; opacity: 1; }
+        25% { top: -20px; left: ${50 + deviation[1]}px; opacity: 0.8; }
+        50% { top: -60px; left: ${50 + deviation[2]}px; opacity: 0.6; }
+        75% { top: -100px; left: ${50 + deviation[3]}px; opacity: 0.4; }
+        100% { top: -140px; left: ${50 + deviation[4]}px; opacity: 0; }
+      }
+    `;
+
+    style.innerHTML = keyFrames;
+
+    return name;
   };
 
   const gerRandomIndex = () => {
-    return Math.ceil(Math.random() * Object.keys(trajectorys).length);
+    return Math.ceil(Math.random() * 4);
   };
 
   btnLike.addEventListener("click", () => {
@@ -131,11 +148,17 @@ window.addEventListener("DOMContentLoaded", () => {
     heart.classList.add("heart");
     liker.appendChild(heart);
 
+    let animationName = createAnimationStyle(gerRandomIndex());
+
+    heart.style.animationName = animationName;
+    heart.style.animationDuration = "500ms";
+    heart.style.animationTimingFunction = "ease-out";
+
     heart.addEventListener("animationend", () => {
       heart.remove();
+      let style = document.querySelector(".animation");
+      style.remove();
     });
-    let index = gerRandomIndex();
-    let trajectory = trajectorys[index];
   });
   //liker
 });
