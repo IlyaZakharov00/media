@@ -1,0 +1,360 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+}
+
+.homeworks-btn-container {
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+.button-collapse,
+.button-callback-chat,
+.button-liker {
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 10px;
+    padding: 2px;
+    background-color: red;
+    cursor: pointer;
+}
+
+.collapse,
+.callback-chat,
+.liker {
+    height: 100vh;
+}
+
+/* collapse */
+.btn-container {
+    margin: 90px 0 20px 100px;
+}
+
+.btn-add-node,
+.btn-collapse {
+    font-size: 20px;
+    border: 0;
+    border-radius: 5px;
+    background: #4676D7;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 16px;
+}
+
+.form-add-node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    top: 50%;
+    left: 13%;
+    transform: translate(-50%, -50%);
+    max-width: 35%;
+}
+
+.form-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.textarea-node {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100px;
+    max-height: 200px;
+    border: 1px solid;
+    padding: 5px;
+}
+
+.btn-add {
+    font-size: 20px;
+    width: 100%;
+    border: 0;
+    border-radius: 5px;
+    background: #4676D7;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 16px;
+    top: 60%;
+    left: 60%;
+    margin-top: 10px;
+}
+
+.container-nodes {
+    display: flex;
+    overflow: hidden;
+    height: 250px;
+    width: 70%;
+    margin: auto;
+    flex-direction: column;
+    border: 1px solid;
+    transition: height 2s linear;
+}
+
+.hide {
+    height: 0px;
+    transition: height 2s linear;
+}
+
+.node {
+    display: flex;
+    margin: auto;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+
+.node-text {
+    text-align: center;
+    width: auto;
+    font-size: 20px;
+    margin-right: 20px;
+}
+
+.btn-remove {
+    font-size: 20px;
+    border: 0;
+    border-radius: 5px;
+    background: #4676D7;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 16px;
+}
+
+.btn:hover {
+    background: #1d49aa;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px #cbd6ee;
+}
+
+/* collapse */
+
+/* callback-chat */
+.circle {
+    position: absolute;
+    top: 70%;
+    left: 80%;
+    /* transform: translate(-80% -80%); */
+    content: "";
+    background-color: red;
+    cursor: pointer;
+
+    width: 50px;
+    height: 50px;
+    border-radius: 100px;
+
+    transition-property: width, height, border-radius, top, left;
+    transition-duration: 100ms;
+    transition-timing-function: ease-in-out;
+}
+
+.circle:hover {
+    height: 100px;
+    width: 100px;
+    top: 66%;
+    left: 78%;
+    border-radius: 100px;
+    overflow: visible;
+
+
+    transition-property: width, height, border-radius, top, left;
+    transition-duration: 100ms;
+    transition-timing-function: ease-in-out;
+}
+
+.circle-hidden {
+    position: absolute;
+    top: 74%;
+    left: 82%;
+    background-color: red;
+    cursor: pointer;
+
+    width: 0px;
+    height: 0px;
+    border-radius: 0px;
+
+    transition-property: width, height, border-radius, top, left;
+    transition-duration: 100ms;
+    transition-timing-function: ease-in-out;
+}
+
+
+.form-callback-chat {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    border-radius: 10px;
+    width: 250px;
+    height: 250px;
+    padding: 15px;
+
+    background-color: white;
+    border: 1px solid;
+
+    opacity: 1;
+    transition-property: all;
+    transition-duration: 100ms;
+    transition-timing-function: ease-in-out;
+}
+
+.form-hidden {
+    opacity: 0;
+    width: 50px;
+    height: 50px;
+    padding: 15px;
+    transition-property: all;
+    transition-duration: 100ms;
+    transition-timing-function: ease-in-out;
+    visibility: hidden;
+}
+
+.form-title-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.form-title-callback-chat {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.form-close {
+    content: "";
+    background-color: gray;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.textarea-node-callback-chat {
+    width: 100%;
+    max-width: 100%;
+    min-height: 200px;
+    max-height: 250px;
+    border: 1px solid;
+    padding: 5px;
+}
+
+.btn-send-callback-chat {
+    font-size: 20px;
+    width: 100%;
+    border: 0;
+    border-radius: 5px;
+    background: #4676D7;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 16px;
+    top: 60%;
+    left: 60%;
+    margin-top: 10px;
+}
+
+/* callback-chat */
+
+/* liker */
+.liker {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50% -50%);
+    padding: 10px;
+    margin-top: 160px;
+}
+
+.btn-liker {
+    border: 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    width: 100px;
+    background-color: red;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.heart {
+    animation-name: heart-animation;
+    animation-duration: 500ms;
+    transition: ease-out;
+    position: absolute;
+    top: 20px;
+    left: 45px;
+    height: 30px;
+    width: 30px;
+    content: "";
+    background-image: url('/img/heart.png');
+    background-repeat: no-repeat;
+    object-fit: cover;
+}
+
+@keyframes heart-animation {
+    from {
+        top: -20px;
+        left: 45px;
+        opacity: 1;
+    }
+
+    25% {
+        top: -40px;
+        left: 45px;
+        opacity: 0.8;
+    }
+
+    50% {
+        top: -53px;
+        left: 0px;
+        opacity: 0.6;
+    }
+
+    75% {
+        top: -126px;
+        left: 85px;
+        opacity: 0.4;
+    }
+
+
+    100% {
+        top: -180px;
+        left: 5px;
+        opacity: 0.2;
+
+    }
+
+    to {
+        top: -200px;
+        left: 45px;
+        opacity: 0;
+    }
+
+
+}
+
+/*liker*/
+
+.hidden {
+    max-height: 0px;
+    visibility: hidden;
+}
