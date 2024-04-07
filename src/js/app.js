@@ -30,6 +30,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const btnAdd = formAddNode.querySelector(".btn-add");
   const textarea = formAddNode.querySelector(".textarea-node");
   const btnCollapse = document.querySelector(".btn-collapse");
+  const collapseContainer = document.querySelector(".collapse");
 
   const createNode = (text) => {
     const element = document.createElement("div");
@@ -65,7 +66,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!containerNodes) {
       let containerNodes = document.createElement("div");
       containerNodes.classList.add("container-nodes");
-      document.body.appendChild(containerNodes);
+      collapseContainer.appendChild(containerNodes);
       let node = createNode(text);
       containerNodes.appendChild(node);
       textarea.value = "";
