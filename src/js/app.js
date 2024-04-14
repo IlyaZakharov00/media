@@ -1,164 +1,374 @@
-window.addEventListener("DOMContentLoaded", () => {
-  const buttonCollapse = document.querySelector(".button-collapse");
-  const buttonCallbackChat = document.querySelector(".button-callback-chat");
-  const buttonLiker = document.querySelector(".button-liker");
-  const collapse = document.querySelector(".collapse");
-  const callbackChat = document.querySelector(".callback-chat");
-  const liker = document.querySelector(".liker");
+import { Message } from "./message";
+import { validateCoords } from "./validateCoords";
 
-  buttonCollapse.addEventListener("click", () => {
-    collapse.classList.remove("hidden");
-    callbackChat.classList.add("hidden");
-    liker.classList.add("hidden");
-  });
+document.addEventListener("DOMContentLoaded", () => {
+  const btnAddTextMessage = document.querySelector(".add-mesage");
+  const btnAudioMessage = document.querySelector(".add-audio");
+  const btnVideoMessage = document.querySelector(".add-video");
+  const inputText = document.querySelector(".input-text");
+  let userCoords;
+  let videoPermisiion;
+  let audioPermisiion;
+  let timer;
 
-  buttonCallbackChat.addEventListener("click", () => {
-    callbackChat.classList.remove("hidden");
-    collapse.classList.add("hidden");
-    liker.classList.add("hidden");
-  });
+  let recorder;
+  let videoPlayer;
+  let stream;
+  let src;
 
-  buttonLiker.addEventListener("click", () => {
-    liker.classList.remove("hidden");
-    callbackChat.classList.add("hidden");
-    collapse.classList.add("hidden");
-  });
+  let audioPlayer;
 
-  // collapse
-  const btnAddNode = document.querySelector(".btn-add-node");
-  const formAddNode = document.querySelector(".form-add-node");
-  const btnAdd = formAddNode.querySelector(".btn-add");
-  const textarea = formAddNode.querySelector(".textarea-node");
-  const btnCollapse = document.querySelector(".btn-collapse");
-  const collapseContainer = document.querySelector(".collapse");
+  const getPermissionCoords = async function () {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (data) => {
+          const { latitude, longitude } = data.coords;
+          userCoords = [latitude, longitude];
+          resolve(userCoords);
+        },
+        async function () {
+          coordsErrorForm();
+          let formError = document.querySelector(".form-error");
+          let btnSendCoords = document.querySelector(".btn-send-coords");
+          let btnClose = document.querySelector(".form-close");
+          let textarea = document.querySelector(".textarea-form-error");
 
-  const createNode = (text) => {
-    const element = document.createElement("div");
-    const btn = document.createElement("button");
-    const p = document.createElement("p");
+          btnClose.addEventListener("click", async () => {
+            alert("Введите координаты!");
+          });
 
-    element.classList.add("node");
-    btn.classList.add("btn-remove");
-    p.classList.add("node-text");
-
-    p.textContent = text;
-    btn.textContent = "Удалить заметку";
-
-    element.appendChild(p);
-    element.appendChild(btn);
-
-    btn.addEventListener("click", () => {
-      element.remove();
+          btnSendCoords.addEventListener("click", async (e) => {
+            e.preventDefault();
+            let coords = await textarea.value;
+            console.log("данные получили");
+            if (!coords || coords == " " || coords == "\n") {
+              console.log("Координат нет!");
+              alert("Координат нет!");
+              return;
+            } else if (validateCoords(coords)) {
+              coords = validateCoords(coords);
+              userCoords = coords;
+              resolve(userCoords);
+              formError.remove();
+              console.log("данные коректные");
+            }
+          });
+        }
+      );
     });
-    return element;
-  };
+  }; // получение координат и валидация
 
-  btnAddNode.addEventListener("click", () => {
-    formAddNode.classList.remove("hidden");
-  });
+  const getPermissionAudio = async function () {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
 
-  btnAdd.addEventListener("click", (e) => {
-    e.preventDefault();
-    formAddNode.classList.add("hidden");
-    let text = textarea.value;
-    if (text == "") text = "Пустая заметка :(";
-    let containerNodes = document.querySelector(".container-nodes");
-    if (!containerNodes) {
-      let containerNodes = document.createElement("div");
-      containerNodes.classList.add("container-nodes");
-      collapseContainer.appendChild(containerNodes);
-      let node = createNode(text);
-      containerNodes.appendChild(node);
-      textarea.value = "";
-    } else {
-      let node = createNode(text);
-      containerNodes.appendChild(node);
-      textarea.value = "";
+      audioPlayer = new Message(userCoords);
+      audioPlayer.createtUlList();
+      let li = audioPlayer.createAudio();
+
+      let audioPlayerElement = li.querySelector(".audio");
+      audioPlayerElement.classList.add("recording");
+      audioPlayer.createAttribute(li);
+
+      // videoPlayerElement.srcObject = stream;
+      // videoPlayerElement.addEventListener("canplay", () => {
+      //   videoPlayerElement.play();
+      // });
+
+      recorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.start();
+
+      recorder.addEventListener("start", () => {
+        console.log("start");
+      });
+
+      recorder.addEventListener("dataavailable", (event) => {
+        chunks.push(event.data);
+      });
+
+      recorder.addEventListener("stop", () => {
+        const blob = new Blob(chunks);
+
+        audioPlayerElement.src = URL.createObjectURL(blob);
+        src = URL.createObjectURL(blob);
+      });
+
+      audioPermisiion = true;
+    } catch (error) {
+      console.log(error);
+      alert(
+        "Предоставьте доступ к микрофону, чтобы записывать аудио-сообщения!"
+      );
     }
-  });
+  }; // получение разрешения на аудио
 
-  btnCollapse.addEventListener("click", () => {
-    const nodesContainer = document.querySelector(".container-nodes");
-    if (!nodesContainer) return;
-    nodesContainer.classList.toggle("hide");
-  });
-  // collapse
+  const getPermissionVideo = async function () {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+      });
 
-  //callback-chat
-  const circle = document.querySelector(".circle");
-  const form = document.querySelector(".form-callback-chat");
-  const close = document.querySelector(".form-close");
+      videoPlayer = new Message(userCoords);
+      videoPlayer.createtUlList();
+      let li = videoPlayer.createVideo();
 
-  circle.addEventListener("click", () => {
-    form.classList.remove("form-hidden");
-    circle.classList.remove("circle");
-    circle.classList.add("circle-hidden");
-  });
+      let videoPlayerElement = li.querySelector(".video");
+      videoPlayerElement.classList.add("recording");
+      videoPlayer.createAttribute(li);
 
-  close.addEventListener("click", () => {
-    circle.classList.remove("circle-hidden");
-    circle.classList.add("circle");
-    form.classList.add("form-hidden");
-  });
+      // videoPlayerElement.srcObject = stream;
+      // videoPlayerElement.addEventListener("canplay", () => {
+      //   videoPlayerElement.play();
+      // });
 
-  //cllback-chat
+      recorder = new MediaRecorder(stream);
+      const chunks = [];
 
-  //liker
-  const btnLike = document.querySelector(".btn-liker");
-  const likerContainer = document.querySelector(".liker");
+      recorder.start();
 
-  const createAnimationStyle = (trajectoryIndex) => {
-    const name = `heart-animation-${Math.random().toString(36).substr(2, 9)}`;
-    const style = document.createElement("style");
-    document.head.appendChild(style);
-    style.classList.add("animation");
+      recorder.addEventListener("start", () => {
+        console.log("start");
+      });
 
-    // Определяем направления отклонения для каждой траектории
-    const deviations = {
-      1: [0, -50, 0, 50, 0], // center, left, center, right, center
-      2: [0, 0, 50, -50, 0], // center, center, right, left, center
-      3: [0, 0, -50, 50, 0], // center, center, left, right, center
-      4: [0, 50, 0, -50, 0], // center, right, center, left, center
-    };
+      recorder.addEventListener("dataavailable", (event) => {
+        chunks.push(event.data);
+      });
 
-    const deviation = deviations[trajectoryIndex];
+      recorder.addEventListener("stop", () => {
+        const blob = new Blob(chunks);
 
-    // Создаем ключевые кадры на основе выбранной траектории
-    const keyFrames = `
-      @keyframes ${name} {
-        0% { top: 20px; left: ${50 + deviation[0]}px; opacity: 1; }
-        25% { top: -20px; left: ${50 + deviation[1]}px; opacity: 0.8; }
-        50% { top: -60px; left: ${50 + deviation[2]}px; opacity: 0.6; }
-        75% { top: -100px; left: ${50 + deviation[3]}px; opacity: 0.4; }
-        100% { top: -140px; left: ${50 + deviation[4]}px; opacity: 0; }
+        videoPlayerElement.src = URL.createObjectURL(blob);
+        src = URL.createObjectURL(blob);
+      });
+
+      videoPermisiion = true;
+    } catch (error) {
+      console.log(error);
+      alert("Предоставьте доступ к камере, чтобы записывать видео-сообщения!");
+    }
+  }; // получение разрешения на видео
+
+  const coordsErrorForm = () => {
+    let form = ` <form class="form-error">
+              <div class="form-error-title">
+                  <div class="title-error">Что то пошло не так :(</div>
+                  <div class="form-close"></div>
+              </div>
+              <div class="error-description">К сожалению, нам не удалось опрделить ваше местоположение.
+              Пожалуйста, дайте разрешение на использование геолокации, либо введите координаты вручную.
+              Широта и долгота через запятую.
+              </div>
+              <textarea class="textarea-form-error" placeholder="Ваши координаты"></textarea>
+              <button class="btn-send-coords">Отправить</button>
+          </form>`;
+    document.body.insertAdjacentHTML("afterbegin", form);
+  }; // создание формы если доступ к координатам недоступен
+
+  const sendTextMessage = async function (e) {
+    if (e instanceof KeyboardEvent) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+      } else return;
+    }
+
+    if (!userCoords) {
+      await getPermissionCoords();
+    }
+
+    let inputText = document.querySelector(".input-text");
+    let text = inputText.value;
+    if (text == "") text = "Пустое сообщение :(";
+
+    let newMessage = new Message(userCoords);
+    newMessage.createtUlList();
+    let msgElement = newMessage.createMsg(text);
+    newMessage.createAttribute(msgElement);
+
+    inputText.value = "";
+  }; // стандартная функция отправка текстовых сообщений. ее слушаем обычно если не записываем видео или аудио
+
+  const startRecordAudio = async () => {
+    if (!userCoords) await getPermissionCoords();
+    await getPermissionAudio();
+
+    if (!audioPermisiion) return;
+
+    console.log("audio");
+
+    btnAddTextMessage.classList.add("check-mark");
+    btnVideoMessage.classList.add("cross");
+    btnAudioMessage.classList.add("timer");
+
+    btnAudioMessage.classList.remove("btn");
+    btnAudioMessage.classList.remove("add-audio");
+
+    btnAddTextMessage.removeEventListener("click", sendTextMessage);
+    btnVideoMessage.removeEventListener("click", startRecordVideo);
+
+    btnAddTextMessage.addEventListener("click", sendAudio);
+    btnVideoMessage.addEventListener("click", deleteAudio);
+    createTimer();
+  }; // по стандарту слушаем на кнопке аудио
+
+  const sendAudio = async function () {
+    console.log("send audio");
+    btnAddTextMessage.classList.remove("check-mark");
+    btnVideoMessage.classList.remove("cross");
+
+    btnAddTextMessage.removeEventListener("click", sendAudio);
+    btnVideoMessage.removeEventListener("click", deleteAudio);
+
+    btnAddTextMessage.addEventListener("click", sendTextMessage);
+    btnVideoMessage.addEventListener("click", startRecordVideo);
+
+    btnAudioMessage.classList.add("btn");
+    btnAudioMessage.classList.add("add-audio");
+
+    let player = document.querySelector(".recording");
+    player.classList.remove("recording");
+
+    recorder.stop();
+    stream.getTracks().forEach((track) => track.stop());
+
+    deleteTimer();
+  }; // функция отправки аудио
+
+  const deleteAudio = async function () {
+    console.log("delete audio");
+    btnAddTextMessage.classList.remove("check-mark");
+    btnVideoMessage.classList.remove("cross");
+
+    btnAddTextMessage.removeEventListener("click", sendAudio);
+    btnVideoMessage.removeEventListener("click", deleteAudio);
+
+    btnAddTextMessage.addEventListener("click", sendTextMessage);
+    btnVideoMessage.addEventListener("click", startRecordVideo);
+
+    btnAudioMessage.classList.add("btn");
+    btnAudioMessage.classList.add("add-audio");
+
+    recorder.stop();
+    stream.getTracks().forEach((track) => track.stop());
+
+    let player = document.querySelector(".recording");
+    let msg = player.parentNode;
+    msg.remove();
+    player.remove();
+
+    deleteTimer();
+  }; // функция удаления аудио
+
+  const startRecordVideo = async () => {
+    if (!userCoords) await getPermissionCoords();
+    await getPermissionVideo();
+
+    if (!videoPermisiion) return;
+
+    btnAddTextMessage.classList.add("check-mark");
+    btnVideoMessage.classList.add("cross");
+    btnAudioMessage.classList.add("timer");
+
+    btnAudioMessage.classList.remove("btn");
+    btnAudioMessage.classList.remove("add-audio");
+
+    btnAddTextMessage.removeEventListener("click", sendTextMessage);
+    btnVideoMessage.removeEventListener("click", startRecordVideo);
+
+    btnAddTextMessage.addEventListener("click", sendVideo);
+    btnVideoMessage.addEventListener("click", deleteVideo);
+
+    createTimer();
+  }; // по стандарту слушаем на кнопке видео
+
+  const sendVideo = async function () {
+    console.log("send video");
+    btnAddTextMessage.classList.remove("check-mark");
+    btnVideoMessage.classList.remove("cross");
+
+    btnAddTextMessage.removeEventListener("click", sendVideo);
+    btnVideoMessage.removeEventListener("click", deleteVideo);
+
+    btnAddTextMessage.addEventListener("click", sendTextMessage);
+    btnVideoMessage.addEventListener("click", startRecordVideo);
+
+    btnAudioMessage.classList.add("btn");
+    btnAudioMessage.classList.add("add-audio");
+
+    let player = document.querySelector(".recording");
+    player.classList.remove("recording");
+
+    recorder.stop();
+    stream.getTracks().forEach((track) => track.stop());
+
+    deleteTimer();
+  }; // функция отправки видео
+
+  const deleteVideo = async function (e) {
+    console.log("delete video");
+    btnAddTextMessage.classList.remove("check-mark");
+    btnVideoMessage.classList.remove("cross");
+
+    btnAddTextMessage.removeEventListener("click", sendVideo);
+    btnVideoMessage.removeEventListener("click", deleteVideo);
+
+    btnAddTextMessage.addEventListener("click", sendTextMessage);
+    btnVideoMessage.addEventListener("click", startRecordVideo);
+
+    btnAudioMessage.classList.add("btn");
+    btnAudioMessage.classList.add("add-audio");
+
+    recorder.stop();
+    stream.getTracks().forEach((track) => track.stop());
+
+    let player = document.querySelector(".recording");
+    let msg = player.parentNode;
+    msg.remove();
+    player.remove();
+
+    deleteTimer();
+  }; // функция удаления видео
+
+  const createTimer = () => {
+    let timer_ = document.querySelector(".timer");
+    let minutes = 0;
+    let seconds = 0;
+    timer_.textContent = `0${minutes}:0${seconds}`;
+
+    timer = setInterval(() => {
+      timer_.textContent = `${minutes}:${seconds++}`;
+
+      if (String(seconds).length == 1 && String(minutes).length == 1) {
+        timer_.textContent = `0${minutes}:0${seconds}`;
+      } else if (String(seconds).length > 1 && String(minutes).length == 1) {
+        timer_.textContent = `0${minutes}:${seconds}`;
       }
-    `;
 
-    style.innerHTML = keyFrames;
+      if (seconds > 59) {
+        seconds = 0;
+        if (String(minutes).length == 1) {
+          timer_.textContent = `0${minutes++}:${seconds}`;
+        } else {
+          timer_.textContent = `${minutes++}:${seconds}`;
+        }
+      }
+    }, 1000);
+  }; // создаем таймер
 
-    return name;
-  };
+  const deleteTimer = () => {
+    clearInterval(timer);
+    btnAudioMessage.classList.remove("timer");
+    btnAudioMessage.textContent = "";
+  }; //удаляем таймер
 
-  const gerRandomIndex = () => {
-    return Math.ceil(Math.random() * 4);
-  };
+  inputText.addEventListener("keypress", sendTextMessage);
+  btnAddTextMessage.addEventListener("click", sendTextMessage);
 
-  btnLike.addEventListener("click", () => {
-    const heart = document.createElement("div");
-    heart.classList.add("heart");
-    liker.appendChild(heart);
-
-    let animationName = createAnimationStyle(gerRandomIndex());
-
-    heart.style.animationName = animationName;
-    heart.style.animationDuration = "500ms";
-    heart.style.animationTimingFunction = "ease-out";
-
-    heart.addEventListener("animationend", () => {
-      heart.remove();
-      let style = document.querySelector(".animation");
-      style.remove();
-    });
-  });
-  //liker
+  btnVideoMessage.addEventListener("click", startRecordVideo);
+  btnAudioMessage.addEventListener("click", startRecordAudio);
 });
+
+//       -  1  2  3  .  4  5  6  ,     -  7  8  9  .  1  2  3

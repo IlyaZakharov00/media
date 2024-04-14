@@ -1,5 +1,5 @@
 {
-  "name": "css-animation",
+  "name": "media",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,8 @@
     "build": "webpack --mode production",
     "lint": "eslint . --fix",
     "test": "jest",
-    "coverage": "jest --coverage"
+    "coverage": "jest --coverage",
+    "test_": "jest --testPathPattern=./src/"
   },
   "author": "",
   "license": "ISC",
